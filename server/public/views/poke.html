@@ -1,0 +1,65 @@
+<md-toolbar>
+    <h1 class="toolbarText">Where's My Bus</h1>
+
+</md-toolbar>
+<ng-map zoom="12" center="[44.886656, -93.2258133]" scrollwheel="false">
+    <custom-marker ng-repeat="mapmarker in busDataFromAPI track by $index"
+ id="custom-marker-{{$index}}"
+
+   position="{{mapmarker.VehicleLatitude}}, {{mapmarker.VehicleLongitude}}">
+  <div class="bus-icon" >
+     {{mapmarker.Route}} <span ng-bind-html="directions[mapmarker.Direction]"></span>
+  </div>
+</custom-marker>
+
+
+      </ng-map>
+<!--
+    <div class="mapmodal" ng-show="pinSelected">
+        <i class="material-icons closebtn" ng-click="closeModal()">clear</i>
+        <div class="modalText">
+
+          <p><strong>Address:</strong> <a ng-href="http://www.google.com/maps/place/{{selectedPin.link}}" target="_blank" class="mapsLink">{{selectedPin.address}}</a>   </p>
+          <p><strong>Square Feet:</strong> {{selectedPin.feet}}</p>
+          <p><strong>After Dark:</strong> {{selectedPin.dark}}</p>
+          <p><strong>Addons:</strong><span ng-repeat="addon in selectedPin.addons"> {{addon.name}} </span></p>
+          <p><strong>Preferred Time:</strong> {{selectedPin.date}}, {{selectedPin.time}}</p>
+          <p class="due"><strong>Due:</strong> {{selectedPin.due}}</p>
+          <p class="pay"><strong>Pay:</strong> ${{selectedPin.price}}</p>
+
+        </div>
+
+    </div>
+  -->
+
+
+<!-- <md-card class="jobsCardMapPage">
+
+    <md-card  ng-repeat="pokemon in mapMarkers">
+      <div class="mapJobList">
+          <div class="mapAddress">
+            <p>Address: <br /><strong>{{pokemon.position}}</strong></p>
+          </div>
+          <div>
+            <p>Square Feet: <br /><strong>{{job.squareFeet}}</strong></p>
+          </div>
+          <div>
+            <p>Addons: <br /><strong><span ng-repeat="addon in job.addons"> {{addon.name}} </span></strong></p>
+          </div>
+          <div>
+            <p>After Dark: <br /><strong>{{job.afterDark}}</strong></p>
+          </div>
+          <div>
+            <p>Preferred Date: <br /><span style="font-weight: bold">{{job.date}}</span></p>
+          </div>
+          <div>
+            <p>Done By: <br /><span style="font-weight: bold">{{job.due}}</span></p>
+          </div>
+          <div class="mapPrice">
+            <p>Price: <br /><span style="font-weight: bold">${{job.price}}</span></p>
+          </div>
+          <md-button ng-show="isUser" class="jobbtn md-raised md-primary" ng-click="takeJob(job.jobid)">Accept Job</md-button>
+        </div>
+      </md-card>
+</md-card>
+-->
