@@ -44,15 +44,42 @@ router.post('/busdbroutes', function(req, res) {
 
     var newBusRoutes = {
       created: Date.now(),
-      apiData: req.body
+      apiData: []
     };
 
     Busroute.create(newBusRoutes, function(err) {
         if (err) {
             console.log(err);
         } else {
-            res.sendStatus(200);
+            res.send(req.body);
         }
+    });
+
+});
+
+router.put('/bus', function(req, res) {
+    var buses = req.body; // {object}
+  console.log('req.body', req.body);
+    Busroute.findOne(function (err, busroute) {
+      if (err) {
+        res.sendStatus(500);
+        return;
+      }
+
+      if (buses.length>0){
+      buses.foreach(function(item, index){
+        busroute.apiData.push(item);
+      });
+
+}
+      busroute.save(function (err) {
+        if (err) {
+          res.sendStatus(500);
+          return;
+        }
+
+        res.sendStatus(204);
+      });
     });
 
 });

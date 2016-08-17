@@ -3,7 +3,7 @@ myApp.controller('pokeController', ['$scope', '$http', '$timeout', function($sco
 
 
     $scope.busDataFromAPI = [];
-    $scope.directions = ["&darr;", "&rarr;", '&larr;', '&uarr;'];
+    $scope.directions = [0,"&darr;", "&rarr;", '&larr;', '&uarr;'];
 
     getBusLocations();
 
@@ -22,25 +22,33 @@ myApp.controller('pokeController', ['$scope', '$http', '$timeout', function($sco
     function getLatestData() {
         $http.get('/poke/busdb')
             .then(function(response) {
-
+                console.log(response.data);
+                if (response.data.length > 0) {
                 $scope.busDataFromAPI = response.data;
-                var timeElapsed = response.data.created - Date.now();
+            }
+                var timeElapsed = Date.now();
                 console.log('timeElapsed', timeElapsed);
 
-                if (timeElapsed > 30000) {
+                if (timeElapsed > 30000 || timeElapsed!==timeElapsed) {
                     $http.delete('/poke/busremove')
                         .then(function(response) {
-                            if (response == 'success') {
+
                                 console.log('removed db info');
                                 $http.get('/poke/bus')
                                     .then(function(resp) {
                                         $scope.busDataFromAPI = resp.data;
-                                        $http.post('/poke/busdbroutes', $scope.busDataFromAPI)
+                                        $http.post('/poke/busdbroutes',$scope.busDataFromAPI)
                                             .then(function(resp1) {
-                                                console.log('added db data again');
+
+                                            $http.put('/poke/bus', resp1)
+                                            .then(function(resp2) {
+                                                console.log('added to db', resp2.data);
+                                                });
+
                                             });
+
                                     });
-                            }
+
                         });
 
                 }
