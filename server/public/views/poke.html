@@ -1,9 +1,31 @@
 <md-toolbar>
     <h1 class="toolbarText">Where's My Bus</h1>
+    <form ng-submit="$event.preventDefault()">
 
+      <md-autocomplete
+
+          md-selected-item="selectedItem"
+          md-search-text-change="filterAPI(routeSearch)"
+          md-search-text="routeSearch"
+          md-selected-item-change="filterAPI(routeSearch)"
+          md-items="item in busData"
+          md-item-text="item.Route"
+          md-min-length="1"
+          placeholder="Enter a route by number">
+        <md-item-template>
+          <span md-highlight-text="routeSearch" md-highlight-flags="^i">{{item.Route}}</span>
+        </md-item-template>
+        <md-not-found>
+          No routes matching "{{routeSearch}}" were found.
+        </md-not-found>
+      </md-autocomplete>
+      </form>
+    <md-button class="md-primary" ng-click="updateAPI()">Refresh</md-button>
+    <h5>Updates every 30 seconds</h5>
 </md-toolbar>
+
 <ng-map zoom="12" center="[44.886656, -93.2258133]" scrollwheel="false">
-    <custom-marker ng-repeat="mapmarker in busDataFromAPI track by $index"
+    <custom-marker ng-repeat="mapmarker in busData track by $index"
  id="custom-marker-{{$index}}"
 
    position="{{mapmarker.VehicleLatitude}}, {{mapmarker.VehicleLongitude}}">

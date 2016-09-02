@@ -33,6 +33,16 @@ myApp.factory('DataFactory', ['$http', function($http) {
       return promise;
     }
 
+    function filterAPI(routeNum) {
+            loadAPI();
+            var newBusRoutes = [];
+            $scope.busData.forEach(function(item){
+                if (routeNum == item.Route) {
+                    newBusRoutes.push(item);
+                }
+            });
+            $scope.busData = newBusRoutes;
+    }
 
   // function getLatestData() {
   //       var get1 = $http.get('/poke/busdb')
