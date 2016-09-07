@@ -4,13 +4,24 @@ var request = require('request');
 var Busroute = require('../models/busroute');
 
 var allBusLocationsAPI = 'http://svc.metrotransit.org/NexTrip/VehicleLocations/0?format=json';
+var allBusRoutesAPI = 'http://svc.metrotransit.org/NexTrip/Routes?format=json';
 
 
-
-// obtain an array of all buses
+// obtain an array of all bus locations
 router.get('/bus', function(req, res) {
 
     request(allBusLocationsAPI, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+            //console.log(body);
+            res.send(body);
+        }
+    });
+
+});
+//obtain an array with descriptions of transit options running today
+router.get('/bus/routes', function(req, res) {
+
+    request(allBusRoutesAPI, function(error, response, body) {
         if (!error && response.statusCode == 200) {
             console.log(body);
             res.send(body);

@@ -5,27 +5,27 @@
       <md-autocomplete
 
           md-selected-item="selectedItem"
-          md-search-text-change="filterAPI(routeSearch)"
+          md-search-text-change="matchRoutes(routeSearch)"
           md-search-text="routeSearch"
-          md-selected-item-change="filterAPI(routeSearch)"
-          md-items="item in busData"
+          md-selected-item-change="filterAPI(item.Route)"
+          md-items="item in busRoutes"
           md-item-text="item.Route"
-          md-min-length="1"
-          placeholder="Enter a route by number">
+          md-min-length="0"
+          placeholder="Search by route number or destination">
         <md-item-template>
-          <span md-highlight-text="routeSearch" md-highlight-flags="^i">{{item.Route}}</span>
+          <span md-highlight-text="routeSearch" md-highlight-flags="^i">{{item.Description}}</span>
         </md-item-template>
         <md-not-found>
           No routes matching "{{routeSearch}}" were found.
         </md-not-found>
       </md-autocomplete>
       </form>
-    <md-button class="md-primary" ng-click="updateAPI()">Refresh</md-button>
+    <md-button class="md-primary" ng-click="filterAPI(routeSearch)">Refresh</md-button>
     <h5>Updates every 30 seconds</h5>
 </md-toolbar>
 
 <ng-map zoom="12" center="[44.886656, -93.2258133]" scrollwheel="false">
-    <custom-marker ng-repeat="mapmarker in busData track by $index"
+    <custom-marker ng-repeat="mapmarker in busLocations track by $index"
  id="custom-marker-{{$index}}"
 
    position="{{mapmarker.VehicleLatitude}}, {{mapmarker.VehicleLongitude}}">

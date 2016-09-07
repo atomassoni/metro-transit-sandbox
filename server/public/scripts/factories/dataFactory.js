@@ -2,13 +2,21 @@ myApp.factory('DataFactory', ['$http', function($http) {
   console.log('dataFactory running');
 
   // PRIVATE
+  var busLocations = undefined;
   var busRoutes = undefined;
   var APICallTime = 0;
 
   // PUBLIC
   var publicApi = {
-    factorySetBusRoutes: function() {
+    factorySetBusLocations: function() {
       return getBusLocations();
+    },
+    factoryGetBusLocations: function() {
+      // return our array
+      return busLocations;
+    },
+    factorySetBusRoutes: function() {
+      return getBusRoutes();
     },
     factoryGetBusRoutes: function() {
       // return our array
@@ -26,23 +34,20 @@ myApp.factory('DataFactory', ['$http', function($http) {
   function getBusLocations() {
       var promise = $http.get('/poke/bus')
             .then(function(response) {
-                busRoutes = response.data;
+                busLocations = response.data;
                 APICallTime = Date.now();
-
             });
       return promise;
     }
 
-    function filterAPI(routeNum) {
-            loadAPI();
-            var newBusRoutes = [];
-            $scope.busData.forEach(function(item){
-                if (routeNum == item.Route) {
-                    newBusRoutes.push(item);
-                }
-            });
-            $scope.busData = newBusRoutes;
-    }
+function getBusRoutes() {
+  var promise = $http.get('/poke/bus/routes')
+        .then(function(response) {
+            busRoutes = response.data;
+        });
+  return promise;
+}
+
 
   // function getLatestData() {
   //       var get1 = $http.get('/poke/busdb')
