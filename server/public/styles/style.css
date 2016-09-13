@@ -1,7 +1,13 @@
 .bus-icon {
   background-color: tomato;
 }
+.reload-button {
+  width: 200px;
+}
+body {
+  height:35rem;
+}
 
 ng-map {
-  height: 30rem;
+  height: 35rem;
 }

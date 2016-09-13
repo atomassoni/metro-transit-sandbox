@@ -72,7 +72,7 @@ myApp.factory('DataFactory', ['$http', function($http) {
         selectedRoute = num;
         var promise = $http.get('/poke/bus/maps/' + num)
             .then(function(response) {
-                console.log("data features", response.data.features);
+                
                 if (response.data.features) {
                     response.data.features.forEach(function(item) {
                         if (item.attributes.route == num) {
@@ -98,7 +98,7 @@ myApp.factory('DataFactory', ['$http', function($http) {
     function searchRoutes(routeSearch) {
         var newBusRoutes = [];
         busRoutes.forEach(function(item) {
-            if (item.Description.search(routeSearch) != -1) {
+            if (item.Description.toLowerCase().search(routeSearch.toLowerCase()) != -1) {
                 newBusRoutes.push(item);
             }
         });
@@ -126,7 +126,7 @@ myApp.factory('DataFactory', ['$http', function($http) {
                 routePath[index].push(utm);
 
             });
-            
+
 
         });
 
@@ -146,7 +146,7 @@ myApp.factory('DataFactory', ['$http', function($http) {
                     });
 
                 });
-                console.log('df path points', busRouteMapsWGS84);
+
             });
         return promise;
     }

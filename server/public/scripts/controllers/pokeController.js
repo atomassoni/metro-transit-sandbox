@@ -1,12 +1,16 @@
 myApp.controller('pokeController', ['$scope', '$http', '$timeout', 'DataFactory', function($scope, $http, $timeout, DataFactory) {
 
     loadAPI();
-    $scope.busLocations = [];//locations of buses with info
-    $scope.busRoutes = [];//all bus routes for the day
+    $scope.busLocations;//locations of buses with info
+    $scope.busRoutes;//all bus routes for the day
     $scope.directions = [0,"&darr;", "&rarr;", '&larr;', '&uarr;'];
-    $scope.routeSearch = '';
-    $scope.selectedItem;
+    $scope.routeSearch = undefined;
+    $scope.selectedItem = undefined;
     $scope.busRouteMaps = false;
+
+$scope.refresh = function () {
+    loadAPI();
+};
 
 $scope.filterAPI = function(routeNum) {
     loadAPI();
