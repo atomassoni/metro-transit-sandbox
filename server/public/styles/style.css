@@ -1,5 +1,6 @@
 .bus-icon {
   background-color: tomato;
+  cursor:pointer;
 }
 .reload-button {
   width: 200px;
