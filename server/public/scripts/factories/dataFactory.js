@@ -2,6 +2,7 @@ myApp.factory('DataFactory', ['$http', function($http) {
     console.log('dataFactory running');
 
     // PRIVATE
+    var currentLocation = undefined;
     var busLocations = undefined;
     var busRoutes = undefined;
     var selectedRoute = undefined;
@@ -11,6 +12,12 @@ myApp.factory('DataFactory', ['$http', function($http) {
 
     // PUBLIC
     var publicApi = {
+        factorySetLocation : function () {
+            return geoLocation();
+        },
+        factoryGetLocation : function() {
+            return currentLocation;
+        },
         factorySetBusLocations: function() {
             return getBusLocations();
         },
@@ -163,6 +170,8 @@ myApp.factory('DataFactory', ['$http', function($http) {
             });
         return promise;
     }
+
+
 
     // function getLatestData() {
     //       var get1 = $http.get('/poke/busdb')

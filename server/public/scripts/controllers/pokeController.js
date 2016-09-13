@@ -1,6 +1,12 @@
 myApp.controller('pokeController', ['$scope', '$http', '$timeout', 'DataFactory', function($scope, $http, $timeout, DataFactory) {
 
     loadAPI();
+    // getLocation();
+    var noLocation = {
+      lat: 44.886656,
+      lng: -93.2258133
+    };
+    $scope.currentLocation = noLocation;
     $scope.busLocations;//locations of buses with info
     $scope.busRoutes;//all bus routes for the day
     $scope.directions = [0,"&darr;", "&rarr;", '&larr;', '&uarr;'];
