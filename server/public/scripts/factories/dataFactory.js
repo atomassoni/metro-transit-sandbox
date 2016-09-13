@@ -1,125 +1,192 @@
 myApp.factory('DataFactory', ['$http', function($http) {
-  console.log('dataFactory running');
+    console.log('dataFactory running');
 
-  // PRIVATE
-  var busLocations = undefined;
-  var busRoutes = undefined;
-  var APICallTime = 0;
+    // PRIVATE
+    var busLocations = undefined;
+    var busRoutes = undefined;
+    var selectedRoute = undefined;
+    var busRouteMaps = undefined;
+    var busRouteMapsWGS84 = undefined;
+    var APICallTime = 0;
 
-  // PUBLIC
-  var publicApi = {
-    factorySetBusLocations: function() {
-      return getBusLocations();
-    },
-    factoryGetBusLocations: function() {
-      // return our array
-      return busLocations;
-    },
-    factorySetBusRoutes: function() {
-      return getBusRoutes();
-    },
-    factoryGetBusRoutes: function() {
-      // return our array
-      return busRoutes;
-    },
-    factoryGetAPICallTime: function() {
-      return APICallTime;
-    },
+    // PUBLIC
+    var publicApi = {
+        factorySetBusLocations: function() {
+            return getBusLocations();
+        },
+        factoryGetBusLocations: function() {
+            // return our array
+            return busLocations;
+        },
+        factorySetBusRoutes: function() {
+            return getBusRoutes();
+        },
+        factoryGetBusRoutes: function() {
+            // return our array
+            return busRoutes;
+        },
+        factorySetBusRouteMaps: function(num) {
+            return getBusRouteMaps(num);
+        },
+        factoryGetBusRouteMaps: function() {
+            // return our array
+            return busRouteMaps;
+        },
+        factoryUTMtoWGS84: function() {
+            return utm2LL();
+        },
+        factoryGetLL: function() {
+            return busRouteMapsWGS84;
+        },
+        factoryGetSelectedRoutes: filterRouteAPI,
+        factorySearchRoutes: function(routeSearch) {
+            return searchRoutes(routeSearch);
+        },
+        factoryGetAPICallTime: function() {
+            return APICallTime;
+        },
 
-  };
+    };
 
-  return publicApi;
+    return publicApi;
 
-  //PRIVATE
-  function getBusLocations() {
-      var promise = $http.get('/poke/bus')
+    //PRIVATE
+    function getBusLocations() {
+        var promise = $http.get('/poke/bus')
             .then(function(response) {
                 busLocations = response.data;
                 APICallTime = Date.now();
             });
-      return promise;
+        return promise;
     }
 
-function getBusRoutes() {
-  var promise = $http.get('/poke/bus/routes')
-        .then(function(response) {
-            busRoutes = response.data;
+    function getBusRoutes() {
+        var promise = $http.get('/poke/bus/routes')
+            .then(function(response) {
+                busRoutes = response.data;
+            });
+        return promise;
+    }
+
+    function getBusRouteMaps(num) {
+        selectedRoute = num;
+        var promise = $http.get('/poke/bus/maps/' + num)
+            .then(function(response) {
+                console.log("data features", response.data.features);
+                if (response.data.features) {
+                    response.data.features.forEach(function(item) {
+                        if (item.attributes.route == num) {
+                            busRouteMaps = item;
+
+                        }
+                    });
+                }
+            });
+        return promise;
+    }
+
+    function filterRouteAPI() {
+        var newBusRoutes = [];
+        busLocations.forEach(function(item) {
+            if (selectedRoute == item.Route) {
+                newBusRoutes.push(item);
+            }
         });
-  return promise;
-}
+        return newBusRoutes;
+    }
 
+    function searchRoutes(routeSearch) {
+        var newBusRoutes = [];
+        busRoutes.forEach(function(item) {
+            if (item.Description.search(routeSearch) != -1) {
+                newBusRoutes.push(item);
+            }
+        });
+        return newBusRoutes;
+    }
 
-  // function getLatestData() {
-  //       var get1 = $http.get('/poke/busdb')
-  //           .then(function(response) {
-  //               console.log(response.data);
-  //               if (response.data.length > 0) {
-  //               $scope.busDataFromAPI = response.data;
-  //           }
-  //               var timeElapsed = Date.now();
-  //               console.log('timeElapsed', timeElapsed);
-  //
-  //               if (timeElapsed > 30000 || timeElapsed!==timeElapsed) {
-  //                   $http.delete('/poke/busremove')
-  //                       .then(function(response) {
-  //
-  //                               console.log('removed db info');
-  //                               $http.get('/poke/bus')
-  //                                   .then(function(resp) {
-  //                                       $scope.busDataFromAPI = resp.data;
-  //                                       $http.post('/poke/busdbroutes',$scope.busDataFromAPI)
-  //                                           .then(function(resp1) {
-  //
-  //                                           $http.put('/poke/bus', resp1)
-  //                                           .then(function(resp2) {
-  //                                               console.log('added to db', resp2.data);
-  //                                               });
-  //
-  //                                           });
-  //
-  //                                   });
-  //
-  //                       });
-  //
-  //               }
-  //           });
-  //   }
-  function getFavoriteData() {
-    var promise = $http.get('/favorites').then(function(response) {
-      console.log('Async data returned: ', response.data);
-      favorites = response.data;
-    });
+    function utm2LL() {
+        //conversion
+        var routePath = [];
 
-    return promise;
-  }
+        busRouteMaps.geometry.paths.forEach(function(line, index) {
+            routePath[index] = [];
+            line.forEach(function(point) {
 
-  function saveFavorite(newFav) {
-    var promise = $http.post('/favorites', newFav).then(function(response) {
-      if(response.status == 201) {
-        console.log('Hooray! Favorite Saved!');
-        return getFavoriteData();
-      } else {
-        console.log('Boo!', response.data);
-      }
-    });
+                var utm = {
+                    "type": "Feature",
+                    "geometry": {
+                        'coordinates': [point[0], point[1]]
+                    },
+                    "properties": {
+                        "zoneLetter": 'N',
+                        "zoneNumber": 15
+                    }
+                };
+                routePath[index].push(utm);
 
-    return promise;
-  }
+            });
+            
 
-  function deleteData(id) {
-    var promise = $http.delete('/favorites/' + id).then(function(response) {
-      console.log('deleted: ', response.data);
-      if(response.status == 204) {
-        console.log('Hooray! deleted!');
-        return getFavoriteData();
-      } else {
-        console.log('Boo!', response.data);
-      }
+        });
 
-    });
+        var promise = $http.post('/poke/maps/conversion', routePath)
+            .then(function(response) {
+                busRouteMapsWGS84 = [];
 
-    return promise;
-  }
+                response.data.forEach(function(item, index) {
+                    busRouteMapsWGS84[index] = [];
+                    item.forEach(function (point, ind) {
+
+                        var coords = [
+                            point.coordinates[1],
+                            point.coordinates[0]
+                        ];
+                        busRouteMapsWGS84[index].push(coords);
+                    });
+
+                });
+                console.log('df path points', busRouteMapsWGS84);
+            });
+        return promise;
+    }
+
+    // function getLatestData() {
+    //       var get1 = $http.get('/poke/busdb')
+    //           .then(function(response) {
+    //               console.log(response.data);
+    //               if (response.data.length > 0) {
+    //               $scope.busDataFromAPI = response.data;
+    //           }
+    //               var timeElapsed = Date.now();
+    //               console.log('timeElapsed', timeElapsed);
+    //
+    //               if (timeElapsed > 30000 || timeElapsed!==timeElapsed) {
+    //                   $http.delete('/poke/busremove')
+    //                       .then(function(response) {
+    //
+    //                               console.log('removed db info');
+    //                               $http.get('/poke/bus')
+    //                                   .then(function(resp) {
+    //                                       $scope.busDataFromAPI = resp.data;
+    //                                       $http.post('/poke/busdbroutes',$scope.busDataFromAPI)
+    //                                           .then(function(resp1) {
+    //
+    //                                           $http.put('/poke/bus', resp1)
+    //                                           .then(function(resp2) {
+    //                                               console.log('added to db', resp2.data);
+    //                                               });
+    //
+    //                                           });
+    //
+    //                                   });
+    //
+    //                       });
+    //
+    //               }
+    //           });
+    //   }
+
 
 
 }]);
