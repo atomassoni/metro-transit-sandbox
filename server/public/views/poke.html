@@ -25,7 +25,7 @@
 
 </md-toolbar>
 
-<ng-map zoom="14" center="current-location">
+<ng-map zoom="14" center="current-location || currentLocation">
      <shape ng-if="busRouteMaps" ng-repeat="paths in busRouteMaps"  name="polyline" path="{{paths}}" stroke-color="#FF0000" stroke-opacity="1.0" stroke-weight="2"></shape>
     <custom-marker ng-repeat="mapmarker in busLocations track by $index"
  id="custom-marker-{{$index}}"
