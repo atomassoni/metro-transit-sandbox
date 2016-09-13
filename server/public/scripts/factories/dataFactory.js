@@ -55,6 +55,8 @@ myApp.factory('DataFactory', ['$http', function($http) {
         var promise = $http.get('/poke/bus')
             .then(function(response) {
                 busLocations = response.data;
+                console.log(busLocations);
+                dateFilter();
                 APICallTime = Date.now();
             });
         return promise;
@@ -72,7 +74,7 @@ myApp.factory('DataFactory', ['$http', function($http) {
         selectedRoute = num;
         var promise = $http.get('/poke/bus/maps/' + num)
             .then(function(response) {
-                
+
                 if (response.data.features) {
                     response.data.features.forEach(function(item) {
                         if (item.attributes.route == num) {
@@ -95,6 +97,17 @@ myApp.factory('DataFactory', ['$http', function($http) {
         return newBusRoutes;
     }
 
+//changes date from server to an actual data object.. now expressed as seconds elapsed
+    function dateFilter () {
+        busLocations.forEach(function(item) {
+            var match = item.LocationTime.match(/\(([^)]+)\-/);
+            var now = Date.now();
+            item.LocationTime = Math.round((now - match[1])/1000);
+        });
+    }
+    function secondsElapsed () {
+
+    }
     function searchRoutes(routeSearch) {
         var newBusRoutes = [];
         busRoutes.forEach(function(item) {

@@ -8,6 +8,19 @@ myApp.controller('pokeController', ['$scope', '$http', '$timeout', 'DataFactory'
     $scope.selectedItem = undefined;
     $scope.busRouteMaps = false;
 
+
+//Modal Functions
+$scope.pinSelect = function (routeNum) {
+    loadAPI();
+    loadRouteMaps(routeNum);
+    $scope.pinSelected = true;
+};
+
+$scope.closeModal = function() {
+    $scope.pinSelected = false;
+};
+
+//API scope functions
 $scope.refresh = function () {
     loadAPI();
 };
@@ -15,14 +28,12 @@ $scope.refresh = function () {
 $scope.filterAPI = function(routeNum) {
     loadAPI();
     loadRouteMaps(routeNum);
-    console.log('$scopebusdata in filter', $scope.busRouteMaps);
 };
 
 $scope.matchRoutes = function(routeSearch) {
     loadRoutes(routeSearch);
-    console.log('$scopebusdata in match', $scope.busRouteMaps);
 };
-
+//Factory functions
 function loadAPI() {
     var timeElapsed = Date.now() - DataFactory.factoryGetAPICallTime();
     console.log('TIME ELAPSED', timeElapsed);

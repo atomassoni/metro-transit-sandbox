@@ -32,12 +32,18 @@
 
    position="{{mapmarker.VehicleLatitude}}, {{mapmarker.VehicleLongitude}}" >
 
-  <div class="bus-icon" ng-click="filterAPI(mapmarker.Route)">
+  <div class="bus-icon" ng-click="pinSelect(mapmarker.Route)">
      {{mapmarker.Route}} <span ng-bind-html="directions[mapmarker.Direction]"></span>
   </div>
+
+<div class="mapmodal" ng-show="pinSelected" ng-click="closeModal()">
+    <div class="modalText">
+      {{mapmarker.Description}}
+      {{mapmarker.LocationTime}} seconds ago
+    </div>
+
+</div>
 </custom-marker>
-
-
       </ng-map>
 <!--
     <div class="mapmodal" ng-show="pinSelected">
