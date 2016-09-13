@@ -1,7 +1,7 @@
 
 <md-toolbar>
 <h5>Metro Transit Current Bus Locations - Updates every 30 seconds</h5>
-<md-button ng-click="refresh()" class="reload-button">Reload All</md-button>
+
     <form ng-submit="$event.preventDefault()">
 
       <md-autocomplete
@@ -22,10 +22,10 @@
         </md-not-found>
       </md-autocomplete>
       </form>
+<md-button ng-click="refresh()" class="reload-button">Reload All</md-button>
 
 </md-toolbar>
-
-<ng-map zoom="14" center="current-location || currentLocation">
+<ng-map zoom="14" center="current-location || currentLocation" default-style="false">
      <shape ng-if="busRouteMaps" ng-repeat="paths in busRouteMaps"  name="polyline" path="{{paths}}" stroke-color="#FF0000" stroke-opacity="1.0" stroke-weight="2"></shape>
     <custom-marker ng-repeat="mapmarker in busLocations track by $index"
  id="custom-marker-{{$index}}"
@@ -45,6 +45,8 @@
 </div>
 </custom-marker>
       </ng-map>
+
+
 <!--
     <div class="mapmodal" ng-show="pinSelected">
         <i class="material-icons closebtn" ng-click="closeModal()">clear</i>

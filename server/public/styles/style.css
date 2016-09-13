@@ -3,12 +3,24 @@
   cursor:pointer;
 }
 .reload-button {
-  width: 200px;
-}
-body {
-  height:35rem;
+  position:fixed;
+  bottom:1rem;
+  left:0;
+  margin:4px;
+  color:red;
 }
 
+md-toolbar {
+  height:2rem;
+}
 ng-map {
-  height: 35rem;
+  position:fixed;
+  height: 92%;
+  width:100%;
+}
+form {
+  padding-left:4px;
+  padding-right:4px;
+  padding-top:1.5rem;
+
 }
