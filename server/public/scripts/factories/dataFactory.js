@@ -81,12 +81,22 @@ myApp.factory('DataFactory', ['$http', function($http) {
         selectedRoute = num;
         var promise = $http.get('/poke/bus/maps/' + num)
             .then(function(response) {
-
                 if (response.data.features) {
                     response.data.features.forEach(function(item) {
                         if (item.attributes.route == num) {
                             busRouteMaps = item;
+                            busRouteMapsWGS84 = [];
+                            item.geometry.paths.forEach(function(item, index) {
+                                busRouteMapsWGS84[index] = [];
+                                item.forEach(function (point, ind) {
+                                    var coords = [
+                                        point[1],
+                                        point[0]
+                                    ];
+                                    busRouteMapsWGS84[index].push(coords);
+                                });
 
+                            });
                         }
                     });
                 }
@@ -104,7 +114,7 @@ myApp.factory('DataFactory', ['$http', function($http) {
         return newBusRoutes;
     }
 
-//changes date from server to an actual data object.. now expressed as seconds elapsed
+//changes date from server to seconds elapsed
     function dateFilter () {
         busLocations.forEach(function(item) {
             var match = item.LocationTime.match(/\(([^)]+)\-/);
@@ -112,9 +122,8 @@ myApp.factory('DataFactory', ['$http', function($http) {
             item.LocationTime = Math.round((now - match[1])/1000);
         });
     }
-    function secondsElapsed () {
 
-    }
+
     function searchRoutes(routeSearch) {
         var newBusRoutes = [];
         busRoutes.forEach(function(item) {
@@ -125,6 +134,7 @@ myApp.factory('DataFactory', ['$http', function($http) {
         return newBusRoutes;
     }
 
+//not used
     function utm2LL() {
         //conversion
         var routePath = [];

@@ -63,17 +63,12 @@ function loadRoutes(routeSearch) {
 }
 
 function loadRouteMaps(num) {
-      DataFactory.factorySetBusRouteMaps(num).then(function() {
-        convertUTMtoWGS84();
-        $scope.busLocations = DataFactory.factoryGetSelectedRoutes();
+     DataFactory.factorySetBusRouteMaps(num).then(function() {
+         $scope.busRouteMaps = DataFactory.factoryGetLL();
+         $scope.busLocations = DataFactory.factoryGetSelectedRoutes();
       });
 }
 
-function convertUTMtoWGS84() {
-      DataFactory.factoryUTMtoWGS84().then(function() {
-        $scope.busRouteMaps = DataFactory.factoryGetLL();
-      });
-}
 
 
 
