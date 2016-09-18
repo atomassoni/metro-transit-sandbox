@@ -7,7 +7,7 @@ var wgs84util = require("wgs84-util");
 var allBusLocationsAPI = 'http://svc.metrotransit.org/NexTrip/VehicleLocations/0?format=json';
 var allBusRoutesAPI = 'http://svc.metrotransit.org/NexTrip/Routes?format=json';
 var busStops = 'http://svc.metrotransit.org/NexTrip/5/4/7SOL?format=json';
-var allBusRoutesMapBaseAPI = 'http://gis2.metc.state.mn.us/arcgis/rest/services/MetroGIS/Transit/MapServer/14/query';
+var allBusRoutesMapBaseAPI = 'http://gis2.metc.state.mn.us/arcgis/rest/services/MetroGIS/Transit/MapServer/13/query';
 
 // obtain an array of all bus locations
 router.get('/bus', function(req, res) {

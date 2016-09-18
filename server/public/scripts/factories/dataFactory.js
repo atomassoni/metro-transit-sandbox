@@ -97,6 +97,7 @@ myApp.factory('DataFactory', ['$http', function($http) {
                                 });
 
                             });
+                            console.log(busRouteMapsWGS84);
                         }
                     });
                 }

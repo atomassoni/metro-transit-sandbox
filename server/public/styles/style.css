@@ -1,6 +1,13 @@
 .bus-icon {
-  background-color: tomato;
+  background-color: khaki;
   cursor:pointer;
+  color:midnightblue;
+  padding:2px;
+  box-shadow: 1px 1px 2px #888888;
+}
+
+.mapmodal {
+  background-color: white;
 }
 .reload-button {
   position:fixed;
