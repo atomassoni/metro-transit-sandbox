@@ -6,8 +6,9 @@ var wgs84util = require("wgs84-util");
 
 var allBusLocationsAPI = 'http://svc.metrotransit.org/NexTrip/VehicleLocations/0?format=json';
 var allBusRoutesAPI = 'http://svc.metrotransit.org/NexTrip/Routes?format=json';
-var busStops = 'http://svc.metrotransit.org/NexTrip/5/4/7SOL?format=json';
-var allBusRoutesMapBaseAPI = 'http://gis2.metc.state.mn.us/arcgis/rest/services/MetroGIS/Transit/MapServer/13/query';
+var busStopsTimeNodes = 'http://svc.metrotransit.org/NexTrip/5/4/7SOL?format=json';
+var allBusRoutesMapBaseAPI = 'http://gis2.metc.state.mn.us/arcgis/rest/services/MetroGIS/Transit/MapServer/15/query';
+var allBusStopsAPI =
 
 // obtain an array of all bus locations
 router.get('/bus', function(req, res) {
@@ -20,7 +21,7 @@ router.get('/bus', function(req, res) {
     });
 
 });
-//obtain an array with descriptions of transit options running today
+//get routes matching route number selected
 router.get('/bus/maps/:routenum', function(req, res) {
     var routeNum = req.params.routenum;
     var query = '?text=' + routeNum + '&outSR=4326&f=pjson';
