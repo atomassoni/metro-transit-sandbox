@@ -13,6 +13,7 @@ myApp.controller('pokeController', ['$scope', '$http', '$timeout', 'DataFactory'
     $scope.routeSearch = undefined;
     $scope.selectedItem = undefined;
     $scope.busRouteMaps = false;
+    $scope.timepoints = undefined;
 
 
 //Modal Functions
@@ -66,7 +67,14 @@ function loadRouteMaps(num) {
      DataFactory.factorySetBusRouteMaps(num).then(function() {
          $scope.busRouteMaps = DataFactory.factoryGetLL();
          $scope.busLocations = DataFactory.factoryGetSelectedRoutes();
+         DataFactory.factorySetBusTimepoints1().then(function() {
+              DataFactory.factorySetBusTimepoints2().then(function() {
+             $scope.timepoints = DataFactory.factoryGetBusTimepoints();
+              
+         });
+        });
       });
+
 }
 
 
