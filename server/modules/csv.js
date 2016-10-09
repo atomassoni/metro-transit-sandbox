@@ -17,6 +17,9 @@ var crayArray = [];
 
 var connectionString = process.env.MONGODB_URI;
 
+var shapesJSONfilepath = './paths.js';//file with shapes JSON
+var stopsJSONfilepath = './stops.js';//stops JSON
+
 mongoose.connect(connectionString);
 
 mongoose.connection.on('connected', function () {
@@ -42,16 +45,16 @@ mongoose.connection.on('error', function (err) {
 // connection.end();
 
 //putStopCoords();
-postTrips();
+//postTrips();
 //stops2JSONfile();
 //putStops();
 //postStops();
 //putShapes();
-//shapes2JSONfile();
+shapes2JSONfile();
 //stops2JSONfile();
 
 function postTrips() {
-    fs.createReadStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/trips.txt')
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'trips.txt')
         .pipe(csv())
         .on('data', function (data) {
 
@@ -89,7 +92,7 @@ function putPaths() {
     var seq_last = 0;
     var path1 = [];
     //var wstream = fs.createWriteStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/shapeswrite.txt');
-    fs.createReadStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/shapes.txt')
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
         .pipe(csv())
         .on('data', function (data) {
 
@@ -133,7 +136,7 @@ function putPaths() {
 function putPaths2() {
     count = 0;
     var path1 = [];
-    fs.createReadStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/shapes.txt')
+fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
         .pipe(csv())
         .on('data', function (data) {
 
@@ -189,12 +192,12 @@ function shapes2JSONfile() {
 
         }).on('end', function () {
             console.log("cray", crayArray);
-            fs.writeFile("./paths.js", JSON.stringify(crayArray), function (err) {
+            fs.writeFile(shapesJSONfilepath, JSON.stringify(crayArray), function (err) {
                 if (err) {
                     console.log(err);
                 }
                 else {
-                    console.log("Output saved to /paths.js.");
+                    console.log("Output saved to " + shapesJSONfilepath);
                 }
             });
             //postTrips();
@@ -207,7 +210,7 @@ function stops2JSONfile() {
     count = 0;
     var tripArray = [];
     var prev = '';
-    var logStream = fs.createWriteStream('stops.js', { 'flags': 'a' });
+    var logStream = fs.createWriteStream(stopsJSONfilepath, { 'flags': 'a' });
     // use {'flags': 'a'} to append and {'flags': 'w'} to erase and write a new file
 
 
@@ -310,7 +313,7 @@ function putStopCoords() {
 
 function putShapes() {
     var getStream = function () {
-        var jsonData = './matrixtest.js',
+        var jsonData = shapesJSONfilepath,
             stream = fs.createReadStream(jsonData, { encoding: 'utf8' }),
             parser = JSONStream.parse('*');
         return stream.pipe(parser);
@@ -336,7 +339,7 @@ function putShapes() {
 
 function postShapes() {
     var getStream = function () {
-        var jsonData = './matrixtest.js',
+        var jsonData = shapesJSONfilepath,
             stream = fs.createReadStream(jsonData, { encoding: 'utf8' }),
             parser = JSONStream.parse('*');
         return stream.pipe(parser);
@@ -366,7 +369,7 @@ function postShapes() {
 
 function putStops() {
     var getStream = function () {
-        var jsonData = './stops.js',
+        var jsonData = stopsJSONfilepath,
             stream = fs.createReadStream(jsonData, { encoding: 'utf8' }),
             parser = JSONStream.parse('*');
         return stream.pipe(parser);
