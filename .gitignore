@@ -4,3 +4,5 @@ node_modules/
 .env
 csv_trans_transit_schedule_google/
 shes.js
+paths.js
+stops.js

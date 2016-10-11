@@ -3,6 +3,8 @@ var CoordSchema = require('./coord').schema;
 
 var StopSchema = mongoose.Schema({
   stop_id: {type: String},
+  arrival: {type: String},
+  departure: {type: String},
   coordinates: [CoordSchema],
 });
 

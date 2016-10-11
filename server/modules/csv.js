@@ -62,7 +62,7 @@ function postTrips() {
             var route = data.route_id.substr(0, data.route_id.length - 3);
             var routeList = ['5', '14', '21', '54', '74', '83', '84', '901', '902'];
             if (routeList.includes(route)) {
-                
+
                 var newTrip = {
                     trip_id: data.trip_id,
                     route_id: data.route_id,
@@ -91,8 +91,17 @@ function putPaths() {
     var shape_prev = 0;
     var seq_last = 0;
     var path1 = [];
-    //var wstream = fs.createWriteStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/shapeswrite.txt');
+<<<<<<< HEAD
+
     fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
+=======
+    //var wstream = fs.createWriteStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/shapeswrite.txt');
+<<<<<<< HEAD
+    fs.createReadStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/shapes.txt')
+>>>>>>> parent of 86081fc... Added path variables
+=======
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
+>>>>>>> 86081fcaa15a04853ceafe80b5f41cc5e53a2dc9
         .pipe(csv())
         .on('data', function (data) {
 
@@ -136,6 +145,7 @@ function putPaths() {
 function putPaths2() {
     count = 0;
     var path1 = [];
+
 fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
         .pipe(csv())
         .on('data', function (data) {
@@ -167,7 +177,7 @@ fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
 function shapes2JSONfile() {
     count = 0;
 
-    fs.createReadStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/shapes.txt')
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
         .pipe(csv())
         .on('data', function (data) {
 
@@ -214,13 +224,13 @@ function stops2JSONfile() {
     // use {'flags': 'a'} to append and {'flags': 'w'} to erase and write a new file
 
 
-    fs.createReadStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/stop_times.txt')
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'stop_times.txt')
         .pipe(csv())
         .on('data', function (data) {
 
             var trip_id = data.trip_id;
             var seq = data.stop_sequence;
-       
+
             var stop = {
                 stop_id: data.stop_id,
                 arrival: data.arrival_time,
@@ -255,7 +265,7 @@ function stops2JSONfile() {
 function postStops() {
     count = 0;
 
-    fs.createReadStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/stops.txt')
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'stops.txt')
         .pipe(csv())
         .on('data', function (data) {
 
@@ -287,7 +297,7 @@ function postStops() {
 function putStopCoords() {
     count = 0;
 
-    fs.createReadStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/stops.txt')
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'stops.txt')
         .pipe(csv())
         .on('data', function (data) {
 
@@ -297,12 +307,23 @@ function putStopCoords() {
                 lon: data.stop_lon
             };
 
-            Trip.update({ 'stops.s_id': stop_id }, { 'stops.coordinates': coords }, { multi: true }, function (err) {
+            Trip.findOne({ 'stops.$.stop_id': stop_id }, function (err, stoplist) {
                 if (err) {
                     console.log("error", err);
                 } else {
-                    console.log("stored %d stops", count);
-                    count++;
+                    // if (stoplist!=null) {
+                    // stoplist.forEach(function (stop, index) {
+                    //     if (stop.stop_id == stop_id) {
+                    //         stop.coordinates = coords;
+                    //     }
+                    // });
+                    console.log(stoplist);
+                    //}
+                    // stops.save(function (err) {
+                    //     if (err) {
+                    //         console.error(err);
+                    //     }
+                    // });
                 }
             });
         }).on('end', function () {

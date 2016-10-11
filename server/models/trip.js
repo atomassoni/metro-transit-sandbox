@@ -10,7 +10,7 @@ var TripSchema = mongoose.Schema({
     block_id: {type: Number},
     paths: {type: Array},
     route: RouteSchema,
-    stops: {type: Array}
+    stops: [StopSchema]
 });
 
 module.exports = mongoose.model('Trip', TripSchema);
