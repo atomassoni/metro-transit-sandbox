@@ -1,7 +1,7 @@
 {
   "name": "metro-transit-sandbox",
   "version": "1.0.0",
-  "description": "\"basic image uploading to Amazon s3, using the MEAN stack with angular routes and ng-file-upload, configured to work with heroku\"",
+  "description": "\"live locator of all metro transit vehicles\"",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
