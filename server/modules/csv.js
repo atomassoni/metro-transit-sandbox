@@ -91,17 +91,9 @@ function putPaths() {
     var shape_prev = 0;
     var seq_last = 0;
     var path1 = [];
-<<<<<<< HEAD
+
 
     fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
-=======
-    //var wstream = fs.createWriteStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/shapeswrite.txt');
-<<<<<<< HEAD
-    fs.createReadStream('/Users/annetomassoni/Documents/prime/bus/server/assets/csv_trans_transit_schedule_google/shapes.txt')
->>>>>>> parent of 86081fc... Added path variables
-=======
-    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
->>>>>>> 86081fcaa15a04853ceafe80b5f41cc5e53a2dc9
         .pipe(csv())
         .on('data', function (data) {
 
