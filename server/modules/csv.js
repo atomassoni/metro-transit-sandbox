@@ -15,7 +15,7 @@ var es = require('event-stream');
 var count = 0;
 var crayArray = [];
 
-var connectionString = process.env.MONGODB_URI;
+var connectionString = process.env.MONGODB_LOC;
 
 var shapesJSONfilepath = './paths.js';//file with shapes JSON
 var stopsJSONfilepath = './stops.js';//stops JSON
@@ -50,8 +50,8 @@ mongoose.connection.on('error', function (err) {
 //putStops();
 //postStops();
 //putShapes();
-shapes2JSONfile();
-//stops2JSONfile();
+//shapes2JSONfile();
+stops2JSONfile();
 
 function postTrips() {
     fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'trips.txt')
@@ -138,7 +138,7 @@ function putPaths2() {
     count = 0;
     var path1 = [];
 
-fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
         .pipe(csv())
         .on('data', function (data) {
 
@@ -222,32 +222,41 @@ function stops2JSONfile() {
 
             var trip_id = data.trip_id;
             var seq = data.stop_sequence;
+            Stop.findOne({ stop_id: data.stop_id })
+                .then(function (stopdb) {
 
-            var stop = {
-                stop_id: data.stop_id,
-                arrival: data.arrival_time,
-                departure: data.departure_time,
-                coordinates: []
-            };
+                    var coords = {
+                        lat: stopdb.coordinates[0].lat,
+                        lon: stopdb.coordinates[0].lon
+                    };
 
-            if (tripArray[trip_id] === undefined) {
-                tripArray[trip_id] = {
-                    trip: trip_id,
-                    stops: []
-                };
-                if (prev != '') {
-                    logStream.write(JSON.stringify(tripArray[prev]) + ',');
-                } else {
-                    logStream.write('[');
-                }
-            }
+                    var stop = {
+                        stop_id: data.stop_id,
+                        arrival: data.arrival_time,
+                        departure: data.departure_time,
+                        coordinates: coords
+                    };
 
-            tripArray[trip_id].stops.push(stop);
-            prev = trip_id;
+                    if (prev != trip_id) {
+                        tripArray['previous'] = tripArray['current'];
+                        tripArray['current'] = {
+                            trip: trip_id,
+                            stops: []
+                        };
+                        if (prev != '') {
+                            logStream.write(JSON.stringify(tripArray['previous']) + ',');
+                        } else {
+                            logStream.write('[');
+                        }
+                    }
+                    console.log(count++);
+                    tripArray['current'].stops.push(stop);
+                    prev = trip_id;
+                });
         }).on('end', function () {
-            console.log("cray", JSON.stringify(tripArray[prev]));
+            console.log("cray");
 
-            logStream.end(JSON.stringify(tripArray[prev]) + ']');
+            logStream.end(JSON.stringify(tripArray['current']) + ']');
 
 
         });
@@ -403,4 +412,19 @@ function putStops() {
     }).on('end', function () {
         console.log("done with streaming/storing json");
     });
+}
+
+function readIntoSQL() {
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
+        .pipe(csv())
+        .on('data', function (data) {
+
+
+
+        }).on('end', function () {
+            console.log("cray");
+
+        });
+
+
 }
