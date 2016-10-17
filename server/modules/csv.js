@@ -55,9 +55,9 @@ var connectionStringPG = 'postgres://localhost:5432/bus';
 //postStops();
 //putShapes();
 //shapes2JSONfile();
-stops2JSONfileSQL();
-//readIntoSQL()
-
+//stops2JSONfileSQL();
+readIntoSQL('stop_times','INSERT INTO stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type) ' +
+                     'VALUES ($1, $2, $3, $4, $5, $6, $7)');
 function postTrips() {
     fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'trips.txt')
         .pipe(csv())
@@ -261,7 +261,7 @@ function stops2JSONfile() {
 
 }
 
-function stops2JSONfileSQL() {
+function stops2JSONfileSQLPromises() {
     count = 0;
     var tripArray = [];
     var prev = '';
@@ -278,6 +278,7 @@ function stops2JSONfileSQL() {
             var stopdb;
             var trip_id = data.trip_id;
             var stop_id = data.stop_id;
+
             pgb.connect(connectionStringPG)
                 .then(function (connection) {
 
@@ -288,8 +289,8 @@ function stops2JSONfileSQL() {
                 })
                 .then(function (result) {
 
-                     stopdb = result.rows[0];
-                     stop = {
+                    stopdb = result.rows[0];
+                    stop = {
                         stop_id: stop_id,
                         arrival: data.arrival_time,
                         departure: data.departure_time,
@@ -299,7 +300,7 @@ function stops2JSONfileSQL() {
 
                     if (prev != trip_id) {
                         tripArray['previous'] = tripArray['current'];
-                       tripArray['current'] = {
+                        tripArray['current'] = {
                             trip: trip_id,
                             stops: []
                         };
@@ -327,6 +328,70 @@ function stops2JSONfileSQL() {
         });
 
 }
+
+function stops2JSONfileSQL() {
+    count = 0;
+    var tripArray = [];
+    var prev = '';
+    var logStream = fs.createWriteStream(stopsJSONfilepath, { 'flags': 'a' });
+    // use {'flags': 'a'} to append and {'flags': 'w'} to erase and write a new file
+
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'stop_times.txt')
+        .pipe(csv())
+        .on('data', function (data) {
+
+            var stopdb;
+            var trip_id = data.trip_id;
+            var stop_id = data.stop_id;
+            pg.connect(connectionString, function (err, client, done) {
+                if (err) {
+                    console.log(err);
+                }
+
+                client.query("SELECT stop_id, lon, lat FROM stops WHERE stop_id = $1",
+                    [data.stop_id],
+                    function (err, result) {
+                        done();
+
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
+                        stopdb = result.rows[0];
+                        stop = {
+                            stop_id: stop_id,
+                            arrival: data.arrival_time,
+                            departure: data.departure_time,
+                            lat: stopdb.lat,
+                            lon: stopdb.lon
+                        };
+
+                        if (prev != trip_id) {
+                            tripArray['previous'] = tripArray['current'];
+                            tripArray['current'] = {
+                                trip: trip_id,
+                                stops: []
+                            };
+                            if (prev != '') {
+                                logStream.write(JSON.stringify(tripArray['previous']) + ',');
+                            } else {
+                                logStream.write('[');
+                            }
+                        }
+                        console.log(count++);
+                        tripArray['current'].stops.push(stop);
+                        prev = trip_id;
+
+                    });
+            });
+
+        }).on('end', function () {
+            console.log("cray");
+            logStream.end(JSON.stringify(tripArray['current']) + ']');
+
+        });
+}
+
 function postStops() {
     count = 0;
 
@@ -475,20 +540,41 @@ function putStops() {
     });
 }
 
-function readIntoSQL() {
+function readIntoSQL(filename) {
     count = 0;
-    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'stops.txt')
+    var columns = [];
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + filename + '.txt')
         .pipe(csv())
+        .on('headers', function (headersList){
+            columns = headersList;
+        })
         .on('data', function (data) {
+ 
+            var query = 'INSERT INTO ' +
+            filename + 
+            ' (' + 
+            columns.join() +
+            ') ' +
+            'VALUES (' +
+            columns.map(function(item,index){
+                index++;
+                return '$' + index;
+            }).join() +
+            ')';
 
+           var vals = columns.map(function(item){
+                return data[item];
+            });
+            
+            //console.log(vals);
+            //console.log(query);
             pg.connect(connectionStringPG, function (err, client, done) {
                 if (err) {
                     console.log(err);
                 }
-
-                client.query('INSERT INTO stops (stop_id, lat, lon) ' +
-                    'VALUES ($1, $2, $3)',
-                    [data.stop_id, data.stop_lat, data.stop_lon],
+                
+                client.query(query,
+                    vals,
                     function (err, result) {
                         done();
 
@@ -506,6 +592,7 @@ function readIntoSQL() {
 
         });
 
-
 }
+
+
 
