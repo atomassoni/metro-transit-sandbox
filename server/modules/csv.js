@@ -3,6 +3,8 @@ require('dotenv').load();
 
 var csv = require('csv-parser');
 var fs = require('fs');
+var pg = require('pg');
+var Pgb = require('pg-bluebird');
 var mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 var Trip = require('../models/trip');
@@ -30,6 +32,8 @@ mongoose.connection.on('error', function (err) {
     console.log('Mongoose error connecting ', err);
 });
 
+var connectionStringPG = 'postgres://localhost:5432/bus';
+
 
 // var mysql = require('mysql');
 // var connection = mysql.createConnection(process.env.JAWSDB_MARIA_URL);
@@ -51,7 +55,8 @@ mongoose.connection.on('error', function (err) {
 //postStops();
 //putShapes();
 //shapes2JSONfile();
-stops2JSONfile();
+stops2JSONfileSQL();
+//readIntoSQL()
 
 function postTrips() {
     fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'trips.txt')
@@ -215,26 +220,21 @@ function stops2JSONfile() {
     var logStream = fs.createWriteStream(stopsJSONfilepath, { 'flags': 'a' });
     // use {'flags': 'a'} to append and {'flags': 'w'} to erase and write a new file
 
-
     fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'stop_times.txt')
         .pipe(csv())
         .on('data', function (data) {
 
             var trip_id = data.trip_id;
-            var seq = data.stop_sequence;
-            Stop.findOne({ stop_id: data.stop_id })
+            var stop_id = data.stop_id;
+            Stop.findOne({ stop_id: stop_id })
                 .then(function (stopdb) {
-
-                    var coords = {
-                        lat: stopdb.coordinates[0].lat,
-                        lon: stopdb.coordinates[0].lon
-                    };
-
+                    console.log(stopdb);
                     var stop = {
                         stop_id: data.stop_id,
                         arrival: data.arrival_time,
                         departure: data.departure_time,
-                        coordinates: coords
+                        lat: stopdb.lat,
+                        lon: stopdb.lon
                     };
 
                     if (prev != trip_id) {
@@ -255,14 +255,78 @@ function stops2JSONfile() {
                 });
         }).on('end', function () {
             console.log("cray");
-
             logStream.end(JSON.stringify(tripArray['current']) + ']');
-
 
         });
 
 }
 
+function stops2JSONfileSQL() {
+    count = 0;
+    var tripArray = [];
+    var prev = '';
+    var logStream = fs.createWriteStream(stopsJSONfilepath, { 'flags': 'a' });
+    // use {'flags': 'a'} to append and {'flags': 'w'} to erase and write a new file
+
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'stop_times.txt')
+        .pipe(csv())
+        .on('data', function (data) {
+
+            var pgb = new Pgb();
+
+            var cnn;
+            var stopdb;
+            var trip_id = data.trip_id;
+            var stop_id = data.stop_id;
+            pgb.connect(connectionStringPG)
+                .then(function (connection) {
+
+                    cnn = connection;
+
+                    return cnn.client.query("SELECT stop_id, lon, lat FROM stops WHERE stop_id = $1",
+                        [data.stop_id]);
+                })
+                .then(function (result) {
+
+                     stopdb = result.rows[0];
+                     stop = {
+                        stop_id: stop_id,
+                        arrival: data.arrival_time,
+                        departure: data.departure_time,
+                        lat: stopdb.lat,
+                        lon: stopdb.lon
+                    };
+
+                    if (prev != trip_id) {
+                        tripArray['previous'] = tripArray['current'];
+                       tripArray['current'] = {
+                            trip: trip_id,
+                            stops: []
+                        };
+                        if (prev != '') {
+                            logStream.write(JSON.stringify(tripArray['previous']) + ',');
+                        } else {
+                            logStream.write('[');
+                        }
+                    }
+                    console.log(count++);
+                    tripArray['current'].stops.push(stop);
+                    prev = trip_id;
+                    cnn.done();
+                })
+
+                .catch(function (error) {
+
+                    console.log(error);
+                });
+
+        }).on('end', function () {
+            console.log("cray");
+            logStream.end(JSON.stringify(tripArray['current']) + ']');
+
+        });
+
+}
 function postStops() {
     count = 0;
 
@@ -271,14 +335,11 @@ function postStops() {
         .on('data', function (data) {
 
             var stop_id = data.stop_id;
-            var coords = {
-                lat: data.stop_lat,
-                lon: data.stop_lon
-            };
 
             var newStop = {
                 stop_id: stop_id,
-                coordinates: coords
+                lat: data.stop_lat,
+                lon: data.stop_lon
             };
 
             Stop.create(newStop, function (err) {
@@ -415,11 +476,30 @@ function putStops() {
 }
 
 function readIntoSQL() {
-    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'shapes.txt')
+    count = 0;
+    fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'stops.txt')
         .pipe(csv())
         .on('data', function (data) {
 
+            pg.connect(connectionStringPG, function (err, client, done) {
+                if (err) {
+                    console.log(err);
+                }
 
+                client.query('INSERT INTO stops (stop_id, lat, lon) ' +
+                    'VALUES ($1, $2, $3)',
+                    [data.stop_id, data.stop_lat, data.stop_lon],
+                    function (err, result) {
+                        done();
+
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
+
+                        console.log(count++);
+                    });
+            });
 
         }).on('end', function () {
             console.log("cray");
@@ -428,3 +508,4 @@ function readIntoSQL() {
 
 
 }
+
