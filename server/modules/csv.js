@@ -56,8 +56,7 @@ var connectionStringPG = 'postgres://localhost:5432/bus';
 //putShapes();
 //shapes2JSONfile();
 //stops2JSONfileSQL();
-readIntoSQL('stop_times','INSERT INTO stop_times (trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type) ' +
-                     'VALUES ($1, $2, $3, $4, $5, $6, $7)');
+readIntoSQL('stop_times');
 function postTrips() {
     fs.createReadStream(process.env.LOCAL_PROJECT_PATH + 'trips.txt')
         .pipe(csv())
